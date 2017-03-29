@@ -45,7 +45,7 @@ const exlMainRegExp = new RegExp(
 const COMPILER_REGEXP = /(\.d.ts|\.ts|\.tsx|\.tsconfig)$/;
 
 TypeScriptCompiler = class TypeScriptCompiler {
-  constructor(extraOptions, maxParallelism) {
+  constructor(extraOptions, maxParallelism, babelOptions = { runMeteorBabel: true }) {
     TypeScript.validateExtraOptions(extraOptions);
 
     this.extraOptions = extraOptions;
@@ -55,6 +55,7 @@ TypeScriptCompiler = class TypeScriptCompiler {
     this.cfgHash = null;
     this.diagHash = new Set;
     this.archSet = new Set;
+    this.babelOptions = babelOptions;
   }
 
   getFilesToProcess(inputFiles) {
@@ -152,11 +153,58 @@ TypeScriptCompiler = class TypeScriptCompiler {
     if (! throwSyntax) {
       results.forEach((result, file) => {
         const module = options.compilerOptions.module;
+        if (module.toLowerCase() === 'es6' && options.compilerOptions.allowSyntheticDefaultImports) {
+          this._runBabel(file,  result);
+        }
         this._addJavaScript(file, result, module === 'none');
       });
     }
 
     pcompile.end();
+  }
+
+  _runBabel(file, tsResult) {
+    try {
+      const babelCore = require('babel-core');
+
+      const packagePrefix = file.getPackageName() ? `packages/${file.getPackageName()}` :'';
+      const filename = `./${packagePrefix}/${file.getPathInPackage()}`;
+      let mbOutput = babelCore.transform(tsResult.code,  {plugins: ["babel-plugin-root-import"], filename });
+      let output = this.babelOptions.runMeteorBabel
+        ? Babel.compile(mbOutput.code)
+        : mbOutput;
+      tsResult.code = output.code;
+      // if (output.map) {
+      //   maps.push(output.map);
+      // }
+    } catch(e) {
+      if (file.error)
+        file.error(e);
+      else
+        throw e;
+      // let errorOptions = {
+      //   inputFile: file,
+      //   tag: 'script',
+      //   charIndex: 0,
+      //   action: 'compiling',
+      //   message: (e.message?e.message:`An Babel error occurred`),
+      //   error: e,
+      // };
+      //
+      // if(e.loc) {
+      //   errorOptions.line = e.loc.line;
+      //   errorOptions.column = e.loc.column;
+      // } else {
+      //   errorOptions.charIndex = 0;
+      //   if(!e.message) {
+      //     errorOptions.showError = true;
+      //   } else {
+      //     errorOptions.showStack = true;
+      //   }
+      // }
+      //
+      // throwCompileError(errorOptions);
+    }
   }
 
   _getContentGetter(inputFiles) {

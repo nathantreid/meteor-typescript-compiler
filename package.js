@@ -10,6 +10,8 @@ Npm.depends({
   'meteor-typescript': '0.8.3',
   'async': '1.4.0',
   'colors': '1.1.2',
+  'babel-plugin-root-import': '5.1.0',
+  'babel-core': '6.24.0'
 });
 
 Package.onUse(function(api) {
@@ -19,6 +21,7 @@ Package.onUse(function(api) {
     'ecmascript@0.4.2',
     'check@1.0.5',
     'underscore@1.0.4',
+    'babel-compiler@6.19.0-beta.13',
   ], 'server');
 
   api.addFiles([
