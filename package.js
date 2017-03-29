@@ -1,8 +1,11 @@
+/*
+ * Tracking barbatus:typescript-compiler@0.9.5
+ */
 Package.describe({
-  name: 'barbatus:typescript-compiler',
-  version: '0.9.5',
+  name: 'nathantreid:typescript-compiler',
+  version: '0.0.1',
   summary: 'TypeScript Compiler for Meteor',
-  git: 'https://github.com/barbatus/ts-compilers',
+  git: 'https://github.com/nathantreid/meteor-typescript-compiler',
   documentation: 'README.md'
 });
 
