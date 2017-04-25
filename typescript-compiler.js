@@ -351,7 +351,7 @@ TypeScriptCompiler = class TypeScriptCompiler {
   _filterByDefault(inputFiles) {
     inputFiles = inputFiles.filter(inputFile => {
       const path = inputFile.getPathInPackage();
-      return COMPILER_REGEXP.test(path) && ! defExclude.test('/' + path);
+      return COMPILER_REGEXP.test(path);
     });
     return inputFiles;
   }
