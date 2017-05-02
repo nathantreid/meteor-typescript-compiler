@@ -264,12 +264,36 @@ TypeScriptCompiler = class TypeScriptCompiler {
           }
         }
       }
-
+      if (shown) {
+        return;
+      }
+      if (dob.message.match(/^Cannot find module.*\.vue/) && checkForModule(dob.message, dob.sourcePath)) {
+        if(process.env.TSC_SHOW_CFM_VUE) {
+          console.log('suppressing erroneous cannot find module error')
+        }
+        return;
+      }
       if (! shown) {
         dob.arch = arch;
         const hash = getShallowHash(dob);
         this.diagHash.add(hash);
         cb(dob);
+      }
+  
+      function checkForModule(message, sourcePath) {
+        const absoluteSourcePath = path.join(process.cwd(), sourcePath);
+        let destPath = message.match(/Cannot find module '(.*?)'/)[1];
+        console.log('checking for destpath', destPath)
+        if (destPath[0] === '~') {
+          destPath = destPath.substring(1);
+        }
+        if (destPath[0] === '/') {
+          destPath = process.cwd() + destPath;
+        } else {
+          destPath = path.relative(absoluteSourcePath, destPath);
+        }
+        console.log('final path to check', destPath)
+        return fs.existsSync(destPath) && fs.lstatSync(destPath).isFile();
       }
     }
 
@@ -288,6 +312,7 @@ TypeScriptCompiler = class TypeScriptCompiler {
     // And log out other errors except package files.
     if (tsOptions && tsOptions.diagnostics) {
       diagnostics.semanticErrors.forEach(diagnostic => {
+        reduce(diagnostic, dob => console.log(dob));
         reduce(diagnostic, dob => inputFile.warn(dob));
       });
     }
