@@ -3,7 +3,7 @@
  */
 Package.describe({
   name: 'nathantreid:typescript-compiler',
-  version: '0.0.1',
+  version: '0.0.2-fixtypings.0.8.3.6',
   summary: 'TypeScript Compiler for Meteor',
   git: 'https://github.com/nathantreid/meteor-typescript-compiler',
   documentation: 'README.md'
