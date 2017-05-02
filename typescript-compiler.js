@@ -32,6 +32,7 @@ import {
 const defExclude = new RegExp(
   getExcludeRegExp(['node_modules/**']));
 
+const defInclude = new RegExp('node_modules/@types');
 // What to exclude when compiling for the server.
 // typings/main and typings/browser seem to be not used
 // at all but let keep them for just in case.
@@ -363,7 +364,7 @@ TypeScriptCompiler = class TypeScriptCompiler {
         const path = inputFile.getPathInPackage();
         // There seems to an issue with getRegularExpressionForWildcard:
         // result regexp always starts with /.
-        return ! this.tsconfig.exclude.test('/' + path);
+        return ! (this.tsconfig.exclude.test('/' + path) && !defInclude.test('/' + path));
       });
     }
     return resultFiles;
